@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VOID TV | FOOTBALL NIGHT</title>
+  <style>
+    :root { --grass:#0b3526; --dark:#061c17; --card:#103d2f; --line:#3c7057; --gold:#f9d84d; --white:#f7fff7; --red:#ef4c53; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--white); font:16px Arial,sans-serif; direction:rtl; text-align:right; min-height:100vh; background:linear-gradient(#061c17d9,#061c17f4),repeating-linear-gradient(90deg,#1a623b 0 90px,#195735 90px 180px); }
+    button,input { font:inherit; } button { cursor:pointer; border:0; border-radius:10px; background:var(--gold); color:#132316; padding:12px 17px; font-weight:900; }
+    button:hover { filter:brightness(1.13); } button:focus-visible { outline:3px solid white; outline-offset:2px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:15px; padding:19px max(3vw,16px); border-bottom:3px solid var(--gold); background:#061b16f0; }
+    header strong { color:var(--gold); font-size:29px; letter-spacing:2px; } header small { color:#c9decf; }
+    main { width:min(1050px,94vw); margin:25px 3vw 45px auto; }
+    .tag { color:var(--gold); font-size:13px; font-weight:900; letter-spacing:2px; } h1 { font-size:clamp(28px,5vw,48px); margin:8px 0 18px; }
+    .board { display:flex; align-items:center; justify-content:space-between; gap:12px; background:#071e19; border:2px solid var(--line); border-radius:12px; padding:13px 18px; margin-bottom:14px; }
+    .score { color:var(--gold); font-size:clamp(25px,4vw,42px); font-weight:900; direction:ltr; } .team { font-weight:900; } .board small { color:#b8d6c3; }
+    .film { position:relative; aspect-ratio:16/9; background:#020807; border:4px solid var(--line); border-radius:14px; display:grid; place-items:center; transition:transform .5s; }
+    .film.rotated { transform:rotate(180deg); border-color:var(--red); }
+    #movie { display:block; width:100%; height:100%; object-fit:contain; }
+    .controls { display:flex; flex-wrap:wrap; gap:9px; justify-content:flex-start; margin:16px 0; }
+    .controls .secondary { background:#23513d; color:white; border:1px solid var(--line); }
+    #duckGo { display:inline-flex; align-items:center; gap:5px; background:var(--gold); }
+    #duckGo .bird { font-size:28px; line-height:1; } .panel { background:#0a3025e8; border:1px solid var(--line); border-radius:13px; padding:16px; margin:12px 0; }
+    .meta { display:flex; justify-content:space-between; gap:10px; color:#b9d3c3; font-size:13px; margin-top:7px; }
+    .slider { width:100%; accent-color:var(--gold); direction:ltr; }
+    .status { color:var(--gold); font-weight:800; min-height:25px; margin-top:14px; }
+    .pitch { position:relative; height:155px; border:3px solid #b2dec3; border-radius:10px; overflow:hidden; background:repeating-linear-gradient(90deg,#236b3d 0 50px,#1c6138 50px 100px); direction:ltr; touch-action:none; user-select:none; }
+    .pitch::after { content:""; position:absolute; inset:12px; border:1px solid #ffffff70; pointer-events:none; }
+    .goal { position:absolute; right:7px; top:28px; width:58px; height:96px; border:5px solid white; background:repeating-linear-gradient(0deg,#ffffff45 0 1px,transparent 1px 13px),repeating-linear-gradient(90deg,#ffffff45 0 1px,transparent 1px 13px); }
+    #ball { position:absolute; left:15px; top:55px; z-index:2; font-size:34px; padding:0; background:none; touch-action:none; transition:left .5s,top .5s; }
+    #aimLine { position:absolute; left:58px; top:77px; width:40%; border-top:3px dashed var(--gold); transform-origin:left; display:none; }
+    .kickInfo { margin-top:9px; color:#d1e8d8; }
+    .news { display:flex; gap:8px; flex-wrap:wrap; align-items:center; } .news span { background:#214c39; padding:7px 12px; border-radius:8px; }
+    .overlay { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:#03120ff0; z-index:80; padding:18px; }
+    #entry { display:flex; z-index:110; } .dialog { background:#103c2d; border:3px solid var(--gold); border-radius:18px; padding:25px; width:min(520px,95vw); box-shadow:0 20px 65px #0009; }
+    .dialog h2 { color:var(--gold); margin-top:0; } .ballGrid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:15px 0; }
+    .ballChoice { font-size:36px; background:#245c41; color:white; } .ballChoice.chosen { outline:4px solid var(--gold); background:#397c53; }
+    .hint { min-height:24px; color:var(--gold); font-weight:800; }
+    #faceScreen { z-index:90; } .faceGrid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin:15px 0; }
+    .face { padding:8px 2px; background:#276146; color:white; font-size:13px; min-height:68px; } .face b { display:block; font-size:28px; }
+    #adScreen { z-index:95; flex-direction:column; gap:15px; background:#080808; } #adScreen img { max-width:min(90vw,800px); max-height:55vh; object-fit:contain; }
+    #adScreen h2 { color:#ff8a24; } #adSkip { position:absolute; bottom:6%; right:5%; }
+    #errors { z-index:96; background:#000b; pointer-events:none; } #errorZone { position:relative; width:100%; height:100%; }
+    .error { position:absolute; background:#fff2b3; color:#2d1218; border:5px solid var(--red); border-radius:8px; width:min(340px,85vw); padding:16px; box-shadow:8px 8px 0 #00d8b4; pointer-events:auto; }
+    .error h2 { color:#bd1634; margin:0 0 10px; } .error button { width:100%; }
+    #scaryScreen { z-index:97; background:black; } #scaryMovie { width:min(100%,1000px); max-height:90vh; }
+    #leaveScreen { z-index:120; background:#bb1c29; pointer-events:none; flex-direction:column; } #leaveScreen h1 { font-size:clamp(30px,7vw,80px); }
+    #toasts { position:fixed; bottom:15px; right:15px; z-index:60; display:grid; gap:8px; pointer-events:none; max-width:320px; }
+    .toast { padding:11px; border:2px solid var(--gold); background:#1c4c36; border-radius:8px; font-weight:800; }
+    footer { padding:24px 3vw; background:#061b16; color:#a9c4b2; }
+    @media(max-width:620px) { main { width:96vw; margin:15px 2vw 30px auto; } .faceGrid { gap:3px; } .face { font-size:10px; min-height:55px; } .face b { font-size:20px; } .dialog { padding:14px; } }
+    @media(prefers-reduced-motion:reduce) { .film,#ball { transition:none; } }
+  </style>
+</head>
+<body>
+  <header><strong>VOID TV ⚽</strong><small>THE REFEREE OWNS YOUR SCREEN</small></header>
+  <main>
+    <div class="tag">● LIVE • THE WORST FOOTBALL STREAM</div>
+    <h1>WELCOME TO FOOTBALL NIGHT</h1>
+    <div class="board"><div class="team">MESSI FC</div><div><div class="score" id="score">0 : 0</div><small id="matchClock">MATCH 00:00</small></div><div class="team">RONALDO FC</div></div>
+    <div class="film" id="movieFrame"><video id="movie" src="video2.mp4" preload="metadata" playsinline></video></div>
+    <div class="controls">
+      <button id="duckGo" aria-label="GO"><span class="bird">🦆</span> GO</button>
+      <button id="wait" class="secondary">Ⅱ WAIT</button>
+      <button id="reset" class="secondary">↺ RESTART</button>
+      <button id="mute" class="secondary">SOUND OFF</button>
+      <button id="full" class="secondary">FULL VIEW</button>
+      <button id="jump" class="secondary">+10 SEC</button>
+    </div>
+    <div class="panel"><strong>FILM TIME</strong><input id="seek" class="slider" type="range" min="0" max="100" value="0" step="0.1"><div class="meta"><span id="clock">0:00 / 0:00</span><span>THE REFEREE DECIDES</span></div></div>
+    <div class="panel"><strong>⚽ VOLUME SHOOTOUT</strong><div class="kickInfo">HOLD THE BALL TO AIM. RELEASE TO SHOOT. THE LANDING ZONE SETS THE SOUND.</div><div class="pitch" id="pitch"><button id="ball" aria-label="Football volume ball">⚽</button><div id="aimLine"></div><div class="goal" aria-label="Football goal"></div></div><div class="meta"><span id="volumeText">80%</span><span id="kickStatus">AIM FOR THE GOAL</span></div></div>
+    <div class="panel"><strong>LIVE REFEREE NEWS</strong><div class="news"><span id="news">THE REFEREE IS WATCHING</span><button id="varBtn">VAR CHECK</button><button id="quizBtn">FOOTBALL QUIZ</button></div></div>
+    <div id="status" class="status" role="status">READY FOR THE MATCH</div>
+  </main>
+  <footer>© 2026 VOID TV • THE REFEREE IS NEVER WRONG</footer>
+  <section id="entry" class="overlay"><div class="dialog"><h2>STADIUM ENTRY CHECK</h2><div>SELECT ALL THREE FOOTBALLS TO ENTER THE MATCH</div><div class="ballGrid" id="ballGrid"></div><button id="verify">VERIFY</button><div class="hint" id="entryHint"></div></div></section>
+  <section id="faceScreen" class="overlay"><div class="dialog"><h2>VAR: THE SCREEN IS INVERTED!</h2><div>FIND MESSI AMONG THE RONALDO FACES TO FIX THE MATCH</div><div class="faceGrid" id="faceGrid"></div><div class="hint" id="faceHint">ONE FACE IS DIFFERENT</div></div></section>
+  <section id="adScreen" class="overlay"><h2>THE REFEREE NEEDS FOOD</h2><img src="talabat-logo.png" alt="Talabat"><strong>THE MATCH CAN WAIT</strong><button id="adSkip">SKI⏭ AD</button></section>
+  <section id="errors" class="overlay"><div id="errorZone"></div></section>
+  <section id="scaryScreen" class="overlay"><video id="scaryMovie" src="scary.mp4" playsinline preload="auto"></video></section>
+  <section id="leaveScreen" class="overlay"><h1>RED CARD!</h1><div>THE REFEREE WANTS YOUR CURSOR BACK</div></section>
+  <section id="dialogScreen" class="overlay"><div class="dialog"><h2 id="dialogTitle"></h2><div id="dialogText"></div><div style="margin-top:15px"><button id="dialogClose">OK</button></div></div></section>
+  <div id="toasts"></div>
+  <video id="adAudio" src="talabat.mp4" preload="auto" hidden></video><video id="fah" src="fah-sound.mp4" preload="auto" hidden></video>
+  <script>
+    (() => {
+      'use strict';
+      const $ = id => document.getElementById(id);
+      const movie = $('movie'), scary = $('scaryMovie'), adAudio = $('adAudio'), fah = $('fah');
+      let stage = 'entry', started = false, faceDone = false, adDone = false, errors = 0;
+      let yellowCards = 0, scoreA = 0, scoreB = 0, aiming = false, aim = 0, aimTimer = null;
+      let audioContext, leaveOsc, leaveGain, dialogResume = false, toastCount = 0;
+      const chosen = new Set();
+      movie.volume = .8;
+      const show = (id, display='flex') => { $(id).style.display = display; };
+      const hide = id => { $(id).style.display = 'none'; };
+      const status = msg => { $('status').textContent = msg; $('news').textContent = msg; };
+      const safePlay = media => media.play().catch(() => status('SELECT WAIT TO ENABLE SOUND'));
+      const time = t => Number.isFinite(t) ? Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0') : '0:00';
+      function sound(frequency=480) {
+        try {
+          const C = window.AudioContext || window.webkitAudioContext;
+          audioContext = audioContext || new C(); audioContext.resume();
+          const osc=audioContext.createOscillator(), gain=audioContext.createGain();
+          osc.type='sawtooth'; osc.frequency.setValueAtTime(frequency,audioContext.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(200,audioContext.currentTime+.17);
+          gain.gain.setValueAtTime(.06,audioContext.currentTime);
+          gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+.2);
+          osc.connect(gain);gain.connect(audioContext.destination);osc.start();osc.stop(audioContext.currentTime+.21);
+        } catch(e) {}
+      }
+      function popup(title, body, resume=false) {
+        if(stage!=='main') return;
+        dialogResume=resume && !movie.paused;
+        if(dialogResume) movie.pause();
+        $('dialogTitle').textContent=title; $('dialogText').textContent=body;
+        show('dialogScreen');
+      }
+      $('dialogClose').onclick=()=>{hide('dialogScreen');if(dialogResume&&stage==='main')safePlay(movie);dialogResume=false;};
+      const balls=['🏀','⚽','🎾','🎱','⚽','🏈','🎳','⚽','🏐'];
+      balls.forEach((ball,i)=>{
+        const b=document.createElement('button');b.className='ballChoice';b.textContent=ball;
+        b.onclick=()=>{chosen.has(i)?chosen.delete(i):chosen.add(i);b.classList.toggle('chosen',chosen.has(i));};
+        $('ballGrid').append(b);
+      });
+      $('verify').onclick=()=>{
+        if(chosen.size===3&&[1,4,7].every(i=>chosen.has(i))) {
+          hide('entry');stage='main';started=true;status('ENTRY CLEARED! SELECT WAIT TO START THE MATCH');
+        } else { $('entryHint').textContent='VAR SAYS NO. FIND THE THREE FOOTBALLS.';sound(350); }
+      };
+      // GO is intentionally the wrong control: it pauses. WAIT is the control that starts playback.
+      const duckGo=$('duckGo');let duckDodges=0;
+      duckGo.addEventListener('pointerenter',()=>{
+        if(stage!=='main'||duckDodges>=5)return;
+        duckDodges++;
+        duckGo.style.transform=`translate(${Math.round(Math.random()*35-18)}px,${Math.round(Math.random()*18-9)}px)`;
+      });
+      duckGo.onclick=()=>{if(stage!=='main')return;movie.pause();yellowCards++;status('GO MEANS WAIT! YELLOW CARD '+yellowCards);sound(330);if(yellowCards%3===0)popup('REFEREE WARNING','TOO MANY YELLOW CARDS. THE DUCK IS IN CHARGE.');};
+      $('wait').onclick=()=>{if(stage==='main'){safePlay(movie);status('WAIT MEANS GO! THE MATCH IS LIVE');}};
+      $('reset').onclick=()=>{
+        movie.pause();adAudio.pause();scary.pause();
+        ['faceScreen','adScreen','errors','scaryScreen','dialogScreen'].forEach(hide);
+        $('errorZone').replaceChildren();$('movieFrame').classList.remove('rotated');
+        faceDone=false;adDone=false;errors=0;stage='main';movie.currentTime=0;
+        status('MATCH RESET. SELECT WAIT TO START');
+      };
+      $('mute').onclick=()=>{movie.muted=!movie.muted;$('mute').textContent=movie.muted?'SOUND ON':'SOUND OFF';};
+      $('full').onclick=()=>{$('movieFrame').requestFullscreen?.().catch(()=>{});};
+      $('jump').onclick=()=>{if(stage==='main')movie.currentTime=Math.min(movie.duration||movie.currentTime+10,movie.currentTime+10);};
+      $('seek').oninput=e=>{if(stage==='main'&&Number.isFinite(movie.duration))movie.currentTime=movie.duration*Number(e.target.value)/100;};
+      function faceChallenge() {
+        if(faceDone||stage!=='main')return;
+        stage='faces';movie.pause();movie.currentTime=15;
+        $('movieFrame').classList.add('rotated');$('faceGrid').replaceChildren();
+        const winner=7;
+        for(let i=0;i<20;i++) {
+          const b=document.createElement('button');b.className='face';
+          const label=i===winner?'MESSI':'RONALDO';
+          b.innerHTML='<b>'+(i===winner?'👨🏻‍🦱':'👨🏻')+'</b>'+label;
+          b.onclick=()=>{
+            if(i===winner){faceDone=true;hide('faceScreen');$('movieFrame').classList.remove('rotated');stage='main';status('MESSI FOUND! VAR CLEARED');safePlay(movie);}
+            else {sound(420);$('faceHint').textContent='WRONG! THAT IS RONALDO. TRY AGAIN.';}
+          };
+          $('faceGrid').append(b);
+        }
+        show('faceScreen');status('FIND MESSI TO FIX THE SCREEN');
+      }
+      function ad() {
+        if(adDone||stage!=='main')return;
+        adDone=true;stage='ad';movie.pause();movie.currentTime=19;
+        show('adScreen');adAudio.currentTime=0;adAudio.muted=false;safePlay(adAudio);
+        status('FOOD BREAK! TALABAT HAS ARRIVED');
+      }
+      function fahSound() {try{fah.pause();fah.currentTime=0;fah.volume=.8;fah.muted=false;fah.play().catch(()=>{});}catch(e){}}
+      function nextError() {
+        fahSound();const n=document.createElement('div');n.className='error';
+        n.style.top=(8+(errors%4)*16)+'%';n.style.right=(6+(errors%4)*12)+'%';
+        const h=document.createElement('h2');h.textContent='VAR ERROR '+(errors+1);
+        const t=document.createElement('div');t.textContent='THE REFEREE REJECTED YOUR REQUEST. '+(errors+1)+' / 5';
+        const b=document.createElement('button');b.textContent='CANCEL';
+        b.onclick=()=>{
+          errors++;
+          if(errors>=5){hide('errors');$('errorZone').replaceChildren();stage='scary';show('scaryScreen');scary.currentTime=0;safePlay(scary);status('BONUS FILM: REFEREE SURPRISE');}
+          else nextError();
+        };
+        n.append(h,t,b);$('errorZone').append(n);
+      }
+      $('adSkip').onclick=()=>{if(stage!=='ad')return;adAudio.pause();hide('adScreen');stage='errors';errors=0;show('errors');nextError();};
+      scary.addEventListener('ended',()=>{if(stage!=='scary')return;hide('scaryScreen');stage='main';movie.currentTime=19.1;status('BACK TO THE MATCH');safePlay(movie);});
+      function checkTime() {
+        const t=movie.currentTime;
+        if(Number.isFinite(movie.duration)&&movie.duration>0){$('seek').value=100*t/movie.duration;$('clock').textContent=time(t)+' / '+time(movie.duration);}
+        $('matchClock').textContent='MATCH '+time(t);
+        if(stage!=='main')return;
+        if(!faceDone&&t>=15){faceChallenge();return;}
+        if(!adDone&&t>=19){ad();return;}
+      }
+      movie.addEventListener('timeupdate',checkTime);
+      movie.addEventListener('seeking',checkTime);
+      movie.addEventListener('loadedmetadata',checkTime);
+      movie.addEventListener('ended',()=>{if(stage==='main'){status('FINAL WHISTLE! THE REFEREE WINS AGAIN');popup('FINAL WHISTLE','YOU SURVIVED THE WORST FOOTBALL STREAM.');}});
+      movie.addEventListener('error',()=>status('FILM FILE MISSING. EXTRACT ALL FILES TO ONE FOLDER'));
+      const lines=['OFFSIDE! YOUR CURSOR WAS TOO FAST','VAR IS CHECKING THE GRASS','THE REFEREE WANTS A SNACK','YELLOW CARD FOR THE BALL','THE CROWD DISAGREES','GOAL! WAIT... NO GOAL'];
+      setInterval(()=>{
+        if(stage!=='main'||movie.paused)return;
+        toastCount++;const msg=lines[toastCount%lines.length];status(msg);
+        if(toastCount%3===0){scoreA+=Math.random()>.5?1:0;scoreB+=Math.random()>.5?1:0;$('score').textContent=scoreA+' : '+scoreB;}
+        const toast=document.createElement('div');toast.className='toast';toast.textContent='⚽ '+msg;
+        const zone=$('toasts');if(zone.children.length>=2)zone.firstChild.remove();zone.append(toast);setTimeout(()=>toast.remove(),4200);
+      },4000);
+      $('varBtn').onclick=()=>{if(stage==='main')popup('VAR REVIEW','THE REFEREE HAS DECIDED YOUR CURSOR WAS OFFSIDE.',true);};
+      $('quizBtn').onclick=()=>{if(stage==='main')popup('FOOTBALL QUIZ','WHICH BALL IS USED IN FOOTBALL? ⚽ OR 🎾 — THE ANSWER IS ⚽.',true);};
+      // Press and hold the football. Release to kick; the landing location sets actual volume.
+      const ball=$('ball'), pitch=$('pitch');
+      function aimTick(){aim=(aim+3)%101;$('aimLine').style.width=(12+aim*.65)+'%';$('kickStatus').textContent='AIM '+aim+'%';}
+      ball.addEventListener('pointerdown',e=>{
+        if(stage!=='main')return;
+        e.preventDefault();ball.setPointerCapture(e.pointerId);aiming=true;aim=0;
+        ball.style.transition='none';ball.style.left='15px';ball.style.top='55px';
+        $('aimLine').style.display='block';clearInterval(aimTimer);aimTimer=setInterval(aimTick,35);
+      });
+      function kick(){
+        if(!aiming)return;aiming=false;clearInterval(aimTimer);$('aimLine').style.display='none';
+        const width=pitch.clientWidth;const available=Math.max(1,width-62);
+        const landing=Math.min(available,Math.max(0,available*aim/100));
+        ball.style.transition='left .55s ease-out,top .55s ease-out';ball.style.left=landing+'px';
+        ball.style.top=(35+Math.round(Math.random()*55))+'px';
+        movie.muted=false;movie.volume=aim/100;
+        $('mute').textContent='SOUND OFF';$('volumeText').textContent=aim+'%';
+        const goal=aim>=84;
+        $('kickStatus').textContent=goal?'GOAL! SOUND SET TO '+aim+'%':'SHOT! SOUND SET TO '+aim+'%';
+        status(goal?'GOAL! THE REFEREE APPROVES YOUR SHOT':'THE BALL SET YOUR SOUND LEVEL');
+        if(goal){scoreA++;$('score').textContent=scoreA+' : '+scoreB;sound(700);}
+        setTimeout(()=>{if(!aiming){ball.style.left='15px';ball.style.top='55px';}},1100);
+      }
+      ball.addEventListener('pointerup',kick);ball.addEventListener('pointercancel',kick);
+      function leave(){if(!started||$('leaveScreen').style.display==='flex')return;show('leaveScreen');try{const C=window.AudioContext||window.webkitAudioContext;audioContext=audioContext||new C();audioContext.resume();leaveOsc=audioContext.createOscillator();leaveGain=audioContext.createGain();leaveOsc.frequency.value=900;leaveGain.gain.value=.02;leaveOsc.connect(leaveGain);leaveGain.connect(audioContext.destination);leaveOsc.start();}catch(e){}}
+      function returnHere(){hide('leaveScreen');if(leaveOsc){try{leaveOsc.stop();leaveOsc.disconnect();}catch(e){}leaveOsc=null;}if(leaveGain){try{leaveGain.disconnect();}catch(e){}leaveGain=null;}}
+      document.addEventListener('mouseleave',leave);document.addEventListener('mouseenter',returnHere);
+      window.addEventListener('blur',leave);window.addEventListener('focus',returnHere);window.addEventListener('pagehide',returnHere);
+    })();
+  </script>
+</body>
+</html>
